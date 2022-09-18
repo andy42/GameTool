@@ -11,11 +11,18 @@ object R {
         val textDark = Color(0xff000000)
         val textLight = Color(0xffffffff)
 
-        val pageBackground = Color(0xffffffff)
+        val pageBackground = Color(0xffbfbfbf)
+        val cardBackground = Color(0xffffffff)
+
         val recipeCircle = Color(0xffababab)
+
+        val deleteButton = Color(0xfffa4932)
+
 
         val debugRed = Color(0xffff0000)
         val debugGreen = Color(0xff00ff00)
         val debugBlue = Color(0xff0000ff)
+
+        val transparent = Color(0x00000000)
     }
 }

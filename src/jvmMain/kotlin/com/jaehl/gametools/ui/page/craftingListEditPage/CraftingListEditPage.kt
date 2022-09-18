@@ -14,14 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.jaehl.gametools.data.mock.ItemsMock
-import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.*
-import com.jaehl.gametools.ui.page.craftingListDetailsPage.CraftingListDetailsViewModel
-import com.jaehl.gametools.ui.page.craftingListDetailsPage.Item
-import com.jaehl.gametools.ui.page.itemEditPage.ItemEditViewModel
-import com.jaehl.gametools.ui.viewModel.ItemRecipeViewModel
 
 @Composable
 fun CraftingListEditPage(
@@ -58,7 +52,6 @@ fun CraftingListEditPage(
                         viewModel.addNewSection()
                     },
                     modifier = Modifier
-                    //.padding(top = 20.dp)
                 ) {
                     Text("Add Section")
                 }

@@ -8,8 +8,7 @@ data class Item(
     val allowsCrafting : Boolean = false,
     val craftedAt : String? = null,
     val iconPath : String? = null,
-    var recipeCraftAmount : Int = 1,
-    val recipe : List<ItemIngredient> = listOf()
+    val recipes : List<Recipe> = listOf()
 ){
     companion object{
         fun blankItem() : Item {
@@ -24,7 +23,17 @@ data class Item(
             )
         }
     }
+
+    fun getRecipe(index : Int) : Recipe {
+        if(index >= recipes.size || index < 0) return Recipe()
+        return recipes[index]
+    }
 }
+
+data class Recipe(
+    val craftAmount : Int = 1,
+    val ingredients : List<ItemIngredient> = listOf()
+)
 
 enum class ItemCategory(val value : String){
     All("All"),

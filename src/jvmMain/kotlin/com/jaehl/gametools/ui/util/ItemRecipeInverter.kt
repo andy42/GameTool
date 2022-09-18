@@ -1,10 +1,10 @@
 package com.jaehl.gametools.ui.util
 
-import com.jaehl.gametools.ui.viewModel.ItemRecipeViewModel
+import com.jaehl.gametools.ui.viewModel.ItemIngredientViewModel
 import java.lang.ref.WeakReference
 
 object ItemRecipeInverter {
-    private fun invert(new : ItemRecipeViewModel, ref :ItemRecipeViewModel){
+    private fun invert(new : ItemIngredientViewModel, ref :ItemIngredientViewModel){
         val parentItem = ref.parentItem.get() ?: return
 
         val first = new.itemCost.firstOrNull{ it.item.id == parentItem.item.id}
@@ -20,7 +20,7 @@ object ItemRecipeInverter {
         }
     }
 
-    private fun walk(map : HashMap<String,ItemRecipeViewModel>, recipe : List<ItemRecipeViewModel>){
+    private fun walk(map : HashMap<String,ItemIngredientViewModel>, recipe : List<ItemIngredientViewModel>){
         recipe.forEach {
             if(it.itemCost.isEmpty()){
                 if(map.containsKey(it.item.id)){
@@ -41,8 +41,8 @@ object ItemRecipeInverter {
         }
     }
 
-    fun invertItemRecipe(recipe : List<ItemRecipeViewModel>) : List<ItemRecipeViewModel>{
-        var baseMap = hashMapOf<String, ItemRecipeViewModel>()
+    fun invertItemRecipe(recipe : List<ItemIngredientViewModel>) : List<ItemIngredientViewModel>{
+        var baseMap = hashMapOf<String, ItemIngredientViewModel>()
         walk(baseMap, recipe)
         return baseMap.values.toList()
     }

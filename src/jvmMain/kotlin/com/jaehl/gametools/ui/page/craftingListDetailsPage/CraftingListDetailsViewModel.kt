@@ -7,9 +7,8 @@ import com.jaehl.gametools.data.model.ItemIngredient
 import com.jaehl.gametools.data.repo.CraftingListRepo
 import com.jaehl.gametools.data.repo.ItemRepo
 import com.jaehl.gametools.extensions.postSwap
-import com.jaehl.gametools.ui.page.craftingListEditPage.CraftingListEditViewModel
 import com.jaehl.gametools.ui.util.ItemRecipeInverter
-import com.jaehl.gametools.ui.viewModel.ItemRecipeViewModel
+import com.jaehl.gametools.ui.viewModel.ItemIngredientViewModel
 import com.jaehl.gametools.util.Log
 import com.jaehl.gametools.util.ViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -72,10 +71,11 @@ class CraftingListDetailsViewModel(
         }
     }
 
-    private suspend fun mergeItemRecipes(items : List<ItemViewModel>) : List<ItemRecipeViewModel>{
+    private suspend fun mergeItemRecipes(items : List<ItemViewModel>) : List<ItemIngredientViewModel>{
         var recipeMap = HashMap<String, ItemIngredient>()
         items.forEach { item ->
-            item.item.recipe.forEach {
+            val recipe =item.item.getRecipe(0)
+            recipe.ingredients.forEach {
                 if(recipeMap.containsKey(it.itemId)){
                     recipeMap[it.itemId]?.amount = recipeMap[it.itemId]!!.amount + it.amount*item.amount
                 } else {
@@ -87,22 +87,25 @@ class CraftingListDetailsViewModel(
         return buildItemRecipe(recipeMap.values.toList(), 1)
     }
 
-    private suspend fun buildItemRecipe(recipe : List<ItemIngredient>, count : Int = 1, root : ItemRecipeViewModel? = null) : ArrayList<ItemRecipeViewModel>{
-        var recipelist = arrayListOf<ItemRecipeViewModel>()
+    private suspend fun buildItemRecipe(recipe : List<ItemIngredient>, count : Int = 1, root : ItemIngredientViewModel? = null) : ArrayList<ItemIngredientViewModel>{
+        var recipelist = arrayListOf<ItemIngredientViewModel>()
         recipe.forEach {itemRecipe ->
             val tempItem = itemRepo.getItem(itemRecipe.itemId)
             if (tempItem != null) {
-                val temp = ItemRecipeViewModel(
+                val recipe =tempItem.getRecipe(0)
+                val temp = ItemIngredientViewModel(
                     WeakReference(root),
                     tempItem,
                     ingredientAmount= itemRecipe.amount*count,
-                    itemCost = buildItemRecipe(tempItem.recipe,
-                        ceil(itemRecipe.amount*count/tempItem.recipeCraftAmount.toDouble()).toInt()
-                    )
+                    itemCost = buildItemRecipe(
+                        recipe.ingredients,
+                        ceil(itemRecipe.amount*count/recipe.craftAmount.toDouble()).toInt()
+                    ),
+                    alternativeRecipe = tempItem.recipes.size > 1
                 )
                 temp.itemCost = buildItemRecipe(
-                    tempItem.recipe,
-                    ceil(itemRecipe.amount*count/tempItem.recipeCraftAmount.toDouble()).toInt(),
+                    recipe.ingredients,
+                    ceil(itemRecipe.amount*count/recipe.craftAmount.toDouble()).toInt(),
                     temp
                 )
                 recipelist.add(temp)
@@ -133,8 +136,8 @@ class CraftingListDetailsViewModel(
         var collapseIngredientList : Boolean,
         var showBaseCrafting : Boolean,
         val itemList : List<ItemViewModel>,
-        val ingredient : List<ItemRecipeViewModel>,
-        val baseIngredient : List<ItemRecipeViewModel>
+        val ingredient : List<ItemIngredientViewModel>,
+        val baseIngredient : List<ItemIngredientViewModel>
     )
 
     data class ItemViewModel(

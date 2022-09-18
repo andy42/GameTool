@@ -1,6 +1,7 @@
 package com.jaehl.gametools.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
@@ -11,8 +12,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.ui.R
-import com.jaehl.gametools.ui.viewModel.ItemRecipeViewModel
+import com.jaehl.gametools.ui.viewModel.ItemIngredientViewModel
 
 private fun backgroundColor(color : Color, depth : Int, index : Int) : Color {
     if(depth != 0){
@@ -22,7 +24,7 @@ private fun backgroundColor(color : Color, depth : Int, index : Int) : Color {
 }
 
 @Composable
-fun IngredientList(modifier: Modifier, collapseList : Boolean, recipeList : List<ItemRecipeViewModel>, depth : Int = 0, background : Color = Color.White) {
+fun IngredientList(modifier: Modifier, collapseList : Boolean, recipeList : List<ItemIngredientViewModel>, depth : Int = 0, background : Color = Color.White, onRecipeChange : ((itemId : String) -> Unit)? = null) {
     Column(
         modifier = modifier.background(background)
     ) {
@@ -34,7 +36,8 @@ fun IngredientList(modifier: Modifier, collapseList : Boolean, recipeList : List
                     collapseList,
                     recipe.itemCost,
                     depth + 1,
-                    backgroundColor(background, depth, index)
+                    backgroundColor(background, depth, index),
+                    onRecipeChange = onRecipeChange
                 )
             }
         }
@@ -42,7 +45,7 @@ fun IngredientList(modifier: Modifier, collapseList : Boolean, recipeList : List
 }
 
 @Composable
-private fun IngredientItem(recipe : ItemRecipeViewModel, depth : Int, background : Color) {
+private fun IngredientItem(recipe : ItemIngredientViewModel, depth : Int, background : Color, onRecipeChange : ((item : Item) -> Unit)? = null) {
     Row (
         modifier = Modifier
             //.padding(start = 30.dp*depth),
@@ -72,7 +75,16 @@ private fun IngredientItem(recipe : ItemRecipeViewModel, depth : Int, background
             textAlign = TextAlign.Center
 
         )
-        ItemIcon(recipe.item.iconPath)
+        ItemIcon(
+            recipe.item.iconPath,
+            modifier = Modifier
+                .background(if(recipe.alternativeRecipe) R.Color.debugGreen else R.Color.transparent)
+                .clickable {
+                    if(recipe.alternativeRecipe){
+                        onRecipeChange?.invoke(recipe.item)
+                    }
+                }
+        )
         Text(
             recipe.item.name,
             modifier = Modifier

@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -21,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaehl.gametools.data.model.Item
@@ -29,8 +27,6 @@ import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.FlowRow
 import com.jaehl.gametools.ui.component.IngredientList
 import com.jaehl.gametools.ui.component.ItemIcon
-
-import com.jaehl.gametools.ui.viewModel.ItemRecipeViewModel
 
 @Composable
 fun CraftingListDetailsPage(

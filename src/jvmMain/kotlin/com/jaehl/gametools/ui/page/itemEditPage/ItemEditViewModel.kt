@@ -5,16 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.ItemCategory
 import com.jaehl.gametools.data.model.ItemIngredient
+import com.jaehl.gametools.data.model.Recipe
 import com.jaehl.gametools.data.repo.ItemRepo
 import com.jaehl.gametools.extensions.postSwap
-import com.jaehl.gametools.ui.viewModel.ItemRecipeViewModel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
-import java.lang.ref.WeakReference
 
 class ItemEditViewModel(private val itemRepo : ItemRepo) {
 
@@ -27,7 +26,9 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
 
     var category = mutableStateOf(ItemCategory.Item)
 
-    var itemRecipeList = mutableStateListOf<ItemRecipeViewModel>()
+    var recipeList = mutableStateListOf<RecipeViewModel>()
+
+    var isItemPickOpen = mutableStateOf(false)
 
     var craftedAtItem : Item? = null
 
@@ -48,15 +49,22 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
 
             craftedAtItem = itemRepo.getItem(item?.craftedAt ?: null)
             _craftedAt.tryEmit(craftedAtItem?.name ?: "")
+            val recipes = item?.recipes?.mapNotNull { recipe ->
+                val ingredients = recipe.ingredients.mapNotNull { ingredient ->
+                    val item = itemRepo.getItem(ingredient.itemId) ?: return@mapNotNull null
+                    IngredientViewModel(
+                        item,
+                        ingredient.amount
+                    )
+                }
+                RecipeViewModel(
+                    name = "",
+                    ingredients = ArrayList(ingredients),
+                    craftAmount = recipe.craftAmount
+                )
+            } ?: listOf()
 
-            val temp = item?.recipe?.map {
-                val item = itemRepo.getItem(it.itemId)
-                if (item != null){
-                    ItemRecipeViewModel(item = item, ingredientAmount= it.amount, parentItem = WeakReference(null))
-                } else null
-            }?.filterNotNull() ?: listOf()
-
-            itemRecipeList.postSwap(temp)
+            recipeList.postSwap(recipes)
         }
     }
 
@@ -82,47 +90,88 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
         }
     }
 
-    fun onCraftingCountChange(index : Int, count : String){
+    fun onCraftAmountChange(recipeIndex : Int, amount : String){
+        GlobalScope.async {
+            var amountInt = 0
+            if(amount.isNotEmpty()){
+                amountInt = toInt(amount) ?: return@async
+            }
+            val temp = recipeList.toList()
+            temp[recipeIndex].craftAmount = amountInt
+            recipeList.postSwap(temp)
+        }
+    }
+    fun onIngredientAmountChange(recipeIndex : Int, ingredientIndex : Int, amount : String){
         GlobalScope.async {
 
-            var countInt = 0
-            if(count.isNotEmpty()){
-                countInt = toInt(count) ?: return@async
+            var amountInt = 0
+            if(amount.isNotEmpty()){
+                amountInt = toInt(amount) ?: return@async
             }
 
-            val temp = itemRecipeList.toList()
-            itemRecipeList[index].ingredientAmount = countInt
-            itemRecipeList.postSwap(temp)
+            val temp = recipeList.toList()
+            temp[recipeIndex].ingredients[ingredientIndex].amount = amountInt
+            recipeList.postSwap(temp)
         }
     }
 
-    fun onCraftingItemDelete(index : Int){
+    fun onIngredientItemDelete(recipeIndex : Int, ingredientIndex : Int){
         GlobalScope.async {
-            val temp = itemRecipeList.toMutableList()
-            temp.removeAt(index)
-            itemRecipeList.postSwap(temp)
+            val temp = recipeList.toMutableList()
+            temp[recipeIndex].ingredients.removeAt(ingredientIndex)
+            recipeList.postSwap(temp)
+        }
+    }
+
+    fun onRecipeAdd(){
+        GlobalScope.async {
+            val temp = recipeList.toMutableList()
+            temp.add(
+                RecipeViewModel(
+                    name = "",
+                    craftAmount = 1,
+                    ingredients = arrayListOf()
+                )
+            )
+            recipeList.postSwap(temp)
+        }
+    }
+
+    fun onRecipeDelete(recipeIndex : Int){
+        GlobalScope.async {
+            val temp = recipeList.toMutableList()
+            temp.removeAt(recipeIndex)
+            recipeList.postSwap(temp)
         }
     }
 
     fun onItemPickerItemClick(item : Item?){
         GlobalScope.async {
+            onCloseItemPicker()
             when(val itemPickerType = this@ItemEditViewModel.itemPickerType){
                 is ItemPickerType.CreatedAt -> {
                     setCraftedAt(item)
                 }
-                is ItemPickerType.AddNewRecipe -> {
+                is ItemPickerType.AddNewIngredient -> {
                     if(item != null) {
-                        val temp = itemRecipeList.toMutableList()
-                        temp.add(ItemRecipeViewModel(item = item, ingredientAmount = 1, parentItem = WeakReference(null)))
-                        itemRecipeList.postSwap(temp)
+                        val temp = recipeList.toMutableList()
+                        temp[itemPickerType.recipeIndex].ingredients.add(
+                            IngredientViewModel(
+                                item = item,
+                                amount = 1
+                            )
+                        )
+
+                        recipeList.postSwap(temp)
                     }
                 }
-                is ItemPickerType.UpdateRecipe -> {
+                is ItemPickerType.UpdateIngredient -> {
                     if(item != null) {
-                        val temp = itemRecipeList.toMutableList()
-                        val tempRecipe = temp[itemPickerType.recipeIndex]
-                        temp[itemPickerType.recipeIndex] = ItemRecipeViewModel(item = item, ingredientAmount= tempRecipe.ingredientAmount, parentItem = WeakReference(null))
-                        itemRecipeList.postSwap(temp)
+                        val temp = recipeList.toMutableList()
+                        val tempIngredient = temp[itemPickerType.recipeIndex].ingredients[itemPickerType.ingredientIndex]
+                        temp[itemPickerType.recipeIndex].ingredients[itemPickerType.ingredientIndex] =
+                            IngredientViewModel(item = item, amount = tempIngredient.amount)
+                        recipeList.postSwap(temp)
                     }
                 }
             }
@@ -150,12 +199,12 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
                             it.name.contains(searchText.value, ignoreCase = true)
                         })
                     }
-                    is ItemPickerType.AddNewRecipe -> {
+                    is ItemPickerType.AddNewIngredient -> {
                         pickerItems.postSwap(items.filter { isRecipeItem(it) }.filter {
                             it.name.contains(searchText.value, ignoreCase = true)
                         })
                     }
-                    is ItemPickerType.UpdateRecipe -> {
+                    is ItemPickerType.UpdateIngredient -> {
                         pickerItems.postSwap(items.filter { isRecipeItem(it) }.filter {
                             it.name.contains(searchText.value, ignoreCase = true)
                         })
@@ -170,10 +219,15 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
         updatePickerItems()
     }
 
-    fun setItemPickerType(type : ItemPickerType){
+    fun onOpenItemPicker(type : ItemPickerType){
         itemPickerType = type
         pickerItemType.value = type
         updatePickerItems()
+        isItemPickOpen.value = true
+    }
+
+    fun onCloseItemPicker(){
+        isItemPickOpen.value = false
     }
 
     fun save(
@@ -196,11 +250,18 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
             allowsCrafting = allowsCrafting,
             craftedAt = craftedAtItem?.id,
             iconPath = "images/${id}.png", //iconPath.ifEmpty { null },
-            recipeCraftAmount = if(recipeCraftAmount.isNullOrBlank()) 1 else recipeCraftAmount?.toInt(),
-            recipe = itemRecipeList.toList().map {
-                ItemIngredient(
-                    itemId = it.item.id,
-                    amount = it.ingredientAmount)
+            recipes = recipeList.mapNotNull { recipe ->
+                if(recipe.ingredients.isEmpty()) return@mapNotNull null
+
+                Recipe(
+                    recipe.craftAmount,
+                    ingredients = recipe.ingredients.map { ingredient ->
+                        ItemIngredient(
+                            itemId = ingredient.item.id,
+                            amount = ingredient.amount
+                        )
+                    }
+                )
             }
         )
         itemRepo.updateItem(item)
@@ -209,7 +270,18 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
 
     sealed class ItemPickerType {
         object CreatedAt : ItemPickerType()
-        object AddNewRecipe : ItemPickerType()
-        data class UpdateRecipe(val recipeIndex : Int) : ItemPickerType()
+        data class AddNewIngredient(val recipeIndex : Int) : ItemPickerType()
+        data class UpdateIngredient(val recipeIndex : Int, val ingredientIndex : Int) : ItemPickerType()
     }
+
+    data class RecipeViewModel(
+        var name : String = "",
+        var craftAmount : Int = 1,
+        var ingredients : ArrayList<IngredientViewModel> = arrayListOf()
+    )
+
+    data class IngredientViewModel(
+        var item : Item,
+        var amount : Int
+    )
 }
