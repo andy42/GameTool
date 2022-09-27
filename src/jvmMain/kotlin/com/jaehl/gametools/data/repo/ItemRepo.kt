@@ -3,6 +3,7 @@ package com.jaehl.gametools.data.repo
 import com.jaehl.gametools.data.local.ItemListFile
 import com.jaehl.gametools.data.local.ItemListFileImp
 import com.jaehl.gametools.data.mock.ItemsMock
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -14,6 +15,14 @@ class ItemRepo(val itemListFile : ItemListFile) {
     private var loaded = false
 
     private var items = MutableSharedFlow<List<Item>>(replay = 1)
+
+    private var selectedGame : Game = Game()
+    @Synchronized
+    suspend fun setGame(game : Game) {
+            selectedGame = game
+            loadLocal(true)
+            items.tryEmit(itemMap.values.toList())
+    }
 
     fun getItems() : SharedFlow<List<Item>> = items
 
@@ -43,17 +52,20 @@ class ItemRepo(val itemListFile : ItemListFile) {
     fun updateItem(item : Item){
         GlobalScope.async {
             itemMap[item.id] = item
-            itemListFile.save(fileName, itemMap.values.toList())
+            itemListFile.save(getFileName(), itemMap.values.toList())
             items.tryEmit(itemMap.values.toList())
         }
     }
 
+    @Synchronized
     private fun loadLocal(forceReload : Boolean = false){
 
         if(loaded && !forceReload) return
 
         try {
-            itemListFile.load(fileName).forEach {
+            itemMap.clear()
+            itemListFile.load(getFileName()).forEach {
+                it.iconPath = "${selectedGame.getDirectory()}/images/${it.id}.png"
                 itemMap[it.id] = it
             }
         } catch (t : Throwable){
@@ -61,7 +73,7 @@ class ItemRepo(val itemListFile : ItemListFile) {
         }
     }
 
-    companion object {
-        private const val fileName = "items.json"
+    private fun getFileName() : String{
+        return "${selectedGame.id}/items.json"
     }
 }

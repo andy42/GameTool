@@ -2,10 +2,7 @@ package com.jaehl.gametools.ui.page.itemEditPage
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.jaehl.gametools.data.model.Item
-import com.jaehl.gametools.data.model.ItemCategory
-import com.jaehl.gametools.data.model.ItemIngredient
-import com.jaehl.gametools.data.model.Recipe
+import com.jaehl.gametools.data.model.*
 import com.jaehl.gametools.data.repo.ItemRepo
 import com.jaehl.gametools.extensions.postSwap
 import kotlinx.coroutines.GlobalScope
@@ -15,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 
-class ItemEditViewModel(private val itemRepo : ItemRepo) {
+class ItemEditViewModel(private val itemRepo : ItemRepo, private val game : Game) {
 
     private var editingItem : Item? = null
     var pageTitle = mutableStateOf("")
@@ -24,7 +21,7 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
     var pickerItemType = mutableStateOf<ItemPickerType>(ItemPickerType.CreatedAt)
     var closePage = mutableStateOf(false)
 
-    var category = mutableStateOf(ItemCategory.Item)
+    var category = mutableStateOf(ItemCategory.CraftedResources)
 
     var recipeList = mutableStateListOf<RecipeViewModel>()
 
@@ -45,7 +42,7 @@ class ItemEditViewModel(private val itemRepo : ItemRepo) {
 
         GlobalScope.async {
 
-            category.value = item?.category ?: ItemCategory.Item
+            category.value = item?.category ?: ItemCategory.CraftedResources
 
             craftedAtItem = itemRepo.getItem(item?.craftedAt ?: null)
             _craftedAt.tryEmit(craftedAtItem?.name ?: "")

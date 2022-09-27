@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.ResourceLoader
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.ui.component.Picker
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.ItemCategory

@@ -73,53 +73,66 @@ fun Recipe(
     recipeIndex : Int,
     recipe : ItemDetailsViewModel.RecipeViewModel
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 20.dp)
-            .background(R.Color.cardBackground)
-    ) {
-        Box(
+    Box {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(R.Color.primary)
-
+                .padding(top = 20.dp)
+                .background(R.Color.cardBackground)
         ) {
-            Text(
-                text = "Recipe ${recipeIndex + 1}",
-                modifier = Modifier.padding(15.dp)
-            )
-            Row(
+            Box(
                 modifier = Modifier
-                    .align(Alignment.CenterEnd),
-            ) {
-                IconButton(
-                    modifier = Modifier,
-                    content = {
-                        Icon(Icons.Outlined.ArrowDropDown, "Edit", tint = if(recipe.collapseList) Color.White else Color.Black)
-                    },
-                    onClick = {
-                        viewModel.onCollapseListToggle(recipeIndex)
-                        //collapseList.value = !collapseList.value
-                    }
-                )
-                IconButton(
-                    modifier = Modifier,
-                    content = {
-                        Icon(Icons.Outlined.List, "Edit", tint = if(recipe.showBaseCrafting) Color.White else Color.Black)
-                    },
-                    onClick = {
-                        viewModel.onShowBaseCraftingToggle(recipeIndex)
-                    }
-                )
-            }
+                    .fillMaxWidth()
+                    .background(R.Color.primary)
 
+            ) {
+                Text(
+                    text = "Recipe ${recipeIndex + 1}",
+                    modifier = Modifier.padding(15.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd),
+                ) {
+                    IconButton(
+                        modifier = Modifier,
+                        content = {
+                            Icon(
+                                Icons.Outlined.ArrowDropDown,
+                                "Edit",
+                                tint = if (recipe.collapseList) Color.White else Color.Black
+                            )
+                        },
+                        onClick = {
+                            viewModel.onCollapseListToggle(recipeIndex)
+                            //collapseList.value = !collapseList.value
+                        }
+                    )
+                    IconButton(
+                        modifier = Modifier,
+                        content = {
+                            Icon(
+                                Icons.Outlined.List,
+                                "Edit",
+                                tint = if (recipe.showBaseCrafting) Color.White else Color.Black
+                            )
+                        },
+                        onClick = {
+                            viewModel.onShowBaseCraftingToggle(recipeIndex)
+                        }
+                    )
+                }
+
+            }
+            IngredientList(
+                Modifier.padding(top = 10.dp, bottom = 10.dp),
+                recipe.collapseList,
+                if (recipe.showBaseCrafting) recipe.baseIngredients else recipe.ingredients,
+                onRecipeChange = { item ->
+
+                }
+            )
         }
-        IngredientList(
-            Modifier.padding(top = 10.dp, bottom = 10.dp),
-            recipe.collapseList,
-            if(recipe.showBaseCrafting) recipe.baseIngredients else recipe.ingredients
-        )
     }
 }
 

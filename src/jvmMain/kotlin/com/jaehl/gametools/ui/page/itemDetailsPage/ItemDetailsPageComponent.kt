@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.arkivanov.decompose.ComponentContext
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.repo.RepoSingleton
 import com.jaehl.gametools.ui.navigation.Component
@@ -12,6 +13,7 @@ import java.nio.file.Path
 
 class ItemDetailsPageComponent (
     private val componentContext: ComponentContext,
+    private val game : Game,
     private val item : Item,
     private val onGoBackClicked: () -> Unit,
     private val onEditClicked: (item : Item?) -> Unit
@@ -20,7 +22,7 @@ class ItemDetailsPageComponent (
     private val viewModel : ItemDetailsViewModel
 
     init {
-        viewModel = ItemDetailsViewModel(RepoSingleton.itemRepo)
+        viewModel = ItemDetailsViewModel(RepoSingleton.itemRepo, game)
     }
 
     @Composable
