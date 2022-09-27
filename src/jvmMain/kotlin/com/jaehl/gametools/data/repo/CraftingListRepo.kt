@@ -3,6 +3,7 @@ package com.jaehl.gametools.data.repo
 import com.jaehl.gametools.data.local.CraftingListsFile
 import com.jaehl.gametools.data.local.CraftingListsFileImp
 import com.jaehl.gametools.data.model.CraftingList
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -18,6 +19,16 @@ class CraftingListRepo(
     private var loaded = false
 
     private var craftingLists = MutableSharedFlow<List<CraftingList>>(replay = 1)
+
+    private var selectedGame : Game = Game()
+
+    fun setGame(game : Game) {
+        GlobalScope.async {
+            selectedGame = game
+            loadLocal(true)
+            craftingLists.tryEmit(craftingListMap.values.toList())
+        }
+    }
 
     fun getCraftingList() : SharedFlow<List<CraftingList>> = craftingLists
 
@@ -38,7 +49,7 @@ class CraftingListRepo(
     fun updateItem(craftingList : CraftingList){
         GlobalScope.async {
             craftingListMap[craftingList.id] = craftingList
-            craftingListsFile.save(fileName, craftingListMap.values.toList())
+            craftingListsFile.save(getFileName(), craftingListMap.values.toList())
             craftingLists.tryEmit(craftingListMap.values.toList())
         }
     }
@@ -57,7 +68,7 @@ class CraftingListRepo(
         GlobalScope.async {
             craftingList.id = createNewId()
             craftingListMap[craftingList.id] = craftingList
-            craftingListsFile.save(fileName, craftingListMap.values.toList())
+            craftingListsFile.save(getFileName(), craftingListMap.values.toList())
             craftingLists.tryEmit(craftingListMap.values.toList())
         }
     }
@@ -65,7 +76,7 @@ class CraftingListRepo(
     fun removeItem(id : String){
         if(craftingListMap.containsKey(id)) {
             craftingListMap.remove(id)
-            craftingListsFile.save(fileName, craftingListMap.values.toList())
+            craftingListsFile.save(getFileName(), craftingListMap.values.toList())
             craftingLists.tryEmit(craftingListMap.values.toList())
         }
     }
@@ -79,7 +90,8 @@ class CraftingListRepo(
         if(loaded && !forceReload) return
 
         try {
-            craftingListsFile.load(fileName).forEach {
+            craftingListMap.clear()
+            craftingListsFile.load(getFileName()).forEach {
                 craftingListMap[it.id] = it
             }
         } catch (t : Throwable){
@@ -87,8 +99,7 @@ class CraftingListRepo(
         }
     }
 
-    companion object {
-        private const val fileName = "craftingLists.json"
+    private fun getFileName() : String{
+        return "${selectedGame.id}/craftingLists.json"
     }
-
 }

@@ -2,6 +2,7 @@ package com.jaehl.gametools.ui.page.craftingListsPage
 
 import androidx.compose.runtime.mutableStateListOf
 import com.jaehl.gametools.data.model.CraftingList
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.repo.CraftingListRepo
 import com.jaehl.gametools.extensions.postSwap
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class CraftingListsViewModel(
-    val craftingListRepo : CraftingListRepo
+    private val craftingListRepo : CraftingListRepo,
+    private val game : Game
 ) : ViewModel() {
 
     var list = mutableStateListOf<CraftingListViewModel>()

@@ -24,7 +24,7 @@ private fun backgroundColor(color : Color, depth : Int, index : Int) : Color {
 }
 
 @Composable
-fun IngredientList(modifier: Modifier, collapseList : Boolean, recipeList : List<ItemIngredientViewModel>, depth : Int = 0, background : Color = Color.White, onRecipeChange : ((itemId : String) -> Unit)? = null) {
+fun IngredientList(modifier: Modifier, collapseList : Boolean, recipeList : List<ItemIngredientViewModel>, depth : Int = 0, background : Color = Color.White, onRecipeChange : ((item : Item) -> Unit)? = null) {
     Column(
         modifier = modifier.background(background)
     ) {

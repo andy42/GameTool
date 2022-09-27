@@ -7,7 +7,7 @@ data class Item(
     val techTier : Int = 1,
     val allowsCrafting : Boolean = false,
     val craftedAt : String? = null,
-    val iconPath : String? = null,
+    var iconPath : String? = null,
     val recipes : List<Recipe> = listOf()
 ){
     companion object{

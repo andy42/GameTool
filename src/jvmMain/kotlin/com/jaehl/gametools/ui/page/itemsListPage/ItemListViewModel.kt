@@ -3,6 +3,7 @@ package com.jaehl.gametools.ui.page.itemsListPage
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.jaehl.gametools.data.mock.ItemsMock
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.ItemCategory
 import com.jaehl.gametools.data.repo.ItemRepo
@@ -14,7 +15,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
 
-class ItemListViewModel(val itemRepo : ItemRepo) : ViewModel() {
+class ItemListViewModel(val itemRepo : ItemRepo, val game : Game) : ViewModel() {
     var items = mutableStateListOf<Item>()
         private set
 
