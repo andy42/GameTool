@@ -1,13 +1,17 @@
 package com.jaehl.gametools.ui.page.itemDetailsPage
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.Recipe
 import com.jaehl.gametools.data.repo.ItemRepo
 import com.jaehl.gametools.extensions.postSwap
 import com.jaehl.gametools.ui.util.ItemRecipeInverter
+import com.jaehl.gametools.ui.viewModel.IngredientPickerItemViewModel
 import com.jaehl.gametools.ui.viewModel.ItemIngredientViewModel
+import com.jaehl.gametools.ui.viewModel.RecipePickerItemViewModel
 import com.jaehl.gametools.util.Log
 import com.jaehl.gametools.util.ViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -15,10 +19,15 @@ import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import kotlin.math.ceil
 
-class ItemDetailsViewModel(val itemRepo : ItemRepo)  : ViewModel() {
+class ItemDetailsViewModel(private val itemRepo : ItemRepo, private val game : Game)  : ViewModel() {
 
     var item = mutableStateOf<Item>(Item.blankItem())
     var recipes = mutableStateListOf<RecipeViewModel>()
+
+
+    var recipePicker = mutableStateListOf<RecipePickerItemViewModel>()
+    var recipePickerItem : Item? = null
+    var isRecipePickerOpen = mutableStateOf(false)
 
     fun init(viewModelScope: CoroutineScope, initItem : Item) {
         super.init(viewModelScope)
@@ -80,6 +89,33 @@ class ItemDetailsViewModel(val itemRepo : ItemRepo)  : ViewModel() {
             }
         }
         return recipelist
+    }
+
+    fun onAlternativeRecipeSelected(selectedRecipeIndex : Int){
+        viewModelScope.launch {
+            recipePickerItem = null
+            isRecipePickerOpen.value = false
+        }
+    }
+    fun onAlternativeRecipeClick(item : Item){
+        viewModelScope.launch{
+            recipePicker.postSwap(
+                item.recipes.map { recipe ->
+                    RecipePickerItemViewModel(
+                        recipe.craftAmount,
+                        recipe.ingredients.mapNotNull { ingredient ->
+                            val tempItem = itemRepo.getItem(ingredient.itemId) ?: return@mapNotNull null
+                            IngredientPickerItemViewModel(
+                                item = tempItem,
+                                amount = ingredient.amount
+                            )
+                        }
+                    )
+                }
+            )
+            recipePickerItem = item
+            isRecipePickerOpen.value = true
+        }
     }
 
     data class RecipeViewModel(

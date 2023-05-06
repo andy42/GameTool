@@ -4,12 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import com.arkivanov.decompose.ComponentContext
+import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.repo.RepoSingleton
 import com.jaehl.gametools.ui.navigation.Component
 
 class CraftingListDetailsPageComponent (
     private val componentContext: ComponentContext,
+    private val game : Game,
     private val craftingListId : String,
     private val onGoBackClicked: () -> Unit,
     private val onCraftingListEditClick : (String?) -> Unit,
@@ -17,6 +19,7 @@ class CraftingListDetailsPageComponent (
 ) : Component, ComponentContext by componentContext {
 
     private val viewModel = CraftingListDetailsViewModel(
+        game,
         craftingListId,
         RepoSingleton.itemRepo,
         RepoSingleton.craftingListRepo
