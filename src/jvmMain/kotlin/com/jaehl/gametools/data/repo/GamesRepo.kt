@@ -34,6 +34,10 @@ class GamesRepo (
             Game(
                 id = "dyson_sphere_program",
                 name = "Dyson Sphere Program"
+            ),
+            Game(
+                id = "tribes_of_midgard",
+                name = "Tribes Of Midgard"
             )
         )
     }
@@ -76,7 +80,7 @@ class GamesRepo (
     private fun loadLocal(forceReload : Boolean = false){
         if(loaded && !forceReload) return
 
-        gameListFile.save(fileName, createTemp())
+        //gameListFile.save(fileName, createTemp())
 
         try {
             gameListFile.load(fileName).forEach {

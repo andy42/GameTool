@@ -54,4 +54,8 @@ class ItemListViewModel @Inject constructor(val itemRepo : ItemRepo) : ViewModel
         filterCategory.value = category
         updateItems()
     }
+
+    fun createFromImages() = viewModelScope.launch {
+        itemRepo.createItemsFromImages()
+    }
 }

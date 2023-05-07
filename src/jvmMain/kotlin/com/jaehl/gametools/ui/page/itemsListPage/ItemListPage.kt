@@ -83,10 +83,22 @@ fun ItemListPage(
             )
 
             Column(modifier = Modifier.padding(20.dp)) {
-                Button(onClick = {
-                    navItemListener.openItemEdit(null)
-                }) {
-                    Text("Create New")
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = {
+                        navItemListener.openItemEdit(null)
+                    }) {
+                        Text("Create New")
+                    }
+                    Button(
+                        modifier = Modifier.padding(start = 20.dp),
+                        onClick = {
+                            viewModel.createFromImages()
+                        }
+                    ) {
+                        Text("Create From Images")
+                    }
                 }
                 Row(
                     modifier = Modifier

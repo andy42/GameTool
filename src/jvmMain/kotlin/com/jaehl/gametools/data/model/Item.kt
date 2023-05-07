@@ -37,6 +37,7 @@ data class Recipe(
 
 enum class ItemCategory(val value : String){
     All("All"),
+    None("None"),
     Resources("Resources"),
     CraftedResources("Crafted Resources"),
     Deployable("Deployables"),
@@ -45,7 +46,8 @@ enum class ItemCategory(val value : String){
     Building("Building"),
     Tool("Tool"),
     Weapon("Weapon"),
-    Ammo("Ammo");
+    Ammo("Ammo"),
+    Consumable("Consumable");
 
     override fun toString(): String {
         return value

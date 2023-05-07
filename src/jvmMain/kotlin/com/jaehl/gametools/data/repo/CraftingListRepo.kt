@@ -20,7 +20,7 @@ class CraftingListRepo(
 
     private var craftingLists = MutableSharedFlow<List<CraftingList>>(replay = 1)
 
-    private var selectedGame : Game = Game()
+    private var selectedGame : Game? = null
 
     fun setGame(game : Game) {
         GlobalScope.async {
@@ -88,7 +88,7 @@ class CraftingListRepo(
 
     private fun loadLocal(forceReload : Boolean = false){
         if(loaded && !forceReload) return
-
+        if(selectedGame == null) return
         try {
             craftingListMap.clear()
             craftingListsFile.load(getFileName()).forEach {
@@ -100,6 +100,6 @@ class CraftingListRepo(
     }
 
     private fun getFileName() : String{
-        return "${selectedGame.id}/craftingLists.json"
+        return "${selectedGame?.id}/craftingLists.json"
     }
 }
