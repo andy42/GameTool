@@ -16,11 +16,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.*
+import com.jaehl.gametools.ui.navigation.NavBackListener
 
 @Composable
 fun CraftingListEditPage(
     viewModel : CraftingListEditViewModel,
-    onGoBackClicked: () -> Unit
+    navBackListener : NavBackListener
 ) {
     Box {
         Column(
@@ -31,7 +32,7 @@ fun CraftingListEditPage(
                 title = viewModel.windowTitle.value,
                 returnButton = true,
                 onBackClick = {
-                    onGoBackClicked()
+                    navBackListener.navigateBack()
                 }
             )
 

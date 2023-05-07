@@ -1,3 +1,4 @@
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -25,6 +26,10 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
+kapt {
+    generateStubs = true
+}
+
 kotlin {
     jvm {
         compilations.all {
@@ -40,6 +45,7 @@ kotlin {
 
                 // Dagger : A fast dependency injector for Android and Java.
                 implementation("com.google.dagger:dagger-compiler:$daggerVersion")
+                configurations.get("kapt").dependencies.add(DefaultExternalModuleDependency("com.google.dagger", "dagger-compiler", "$daggerVersion"))
 
                 implementation ("org.jsoup:jsoup:1.8.3")
                 implementation ("com.google.code.gson:gson:2.8.9")

@@ -9,8 +9,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,14 +17,16 @@ import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.IngredientList
 import com.jaehl.gametools.ui.component.ItemIcon
+import com.jaehl.gametools.ui.navigation.NavBackListener
+import com.jaehl.gametools.ui.navigation.NavItemListener
 
 
 @Composable
 fun ItemDetailsPage(
     item : Item,
     viewModel : ItemDetailsViewModel,
-    onGoBackClicked: () -> Unit,
-    onEditClicked: (item : Item?) -> Unit
+    navBackListener: NavBackListener,
+    navItemListener: NavItemListener
 ) {
     Column(
         modifier = Modifier
@@ -36,9 +36,9 @@ fun ItemDetailsPage(
     ) {
         AppBar(
             item = item,
-            onBackClick = onGoBackClicked,
+            onBackClick = navBackListener::navigateBack,
             onEditClicked = {
-                onEditClicked(viewModel.item.value)
+                navItemListener.openItemEdit(viewModel.item.value)
             }
         )
         Column(

@@ -1,9 +1,7 @@
 package com.jaehl.gametools.ui.page.itemDetailsPage
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.Recipe
 import com.jaehl.gametools.data.repo.ItemRepo
@@ -17,9 +15,10 @@ import com.jaehl.gametools.util.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import javax.inject.Inject
 import kotlin.math.ceil
 
-class ItemDetailsViewModel(private val itemRepo : ItemRepo, private val game : Game)  : ViewModel() {
+class ItemDetailsViewModel @Inject constructor(private val itemRepo : ItemRepo)  : ViewModel() {
 
     var item = mutableStateOf<Item>(Item.blankItem())
     var recipes = mutableStateListOf<RecipeViewModel>()

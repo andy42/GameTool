@@ -2,7 +2,6 @@ package com.jaehl.gametools.ui.page.craftingListDetailsPage
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.ItemIngredient
 import com.jaehl.gametools.data.repo.CraftingListRepo
@@ -15,11 +14,10 @@ import com.jaehl.gametools.util.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import javax.inject.Inject
 import kotlin.math.ceil
 
-class CraftingListDetailsViewModel(
-    private val game : Game,
-    private val craftingListId : String,
+class CraftingListDetailsViewModel @Inject constructor(
     private val itemRepo : ItemRepo,
     private val craftingListRepo : CraftingListRepo
 ) : ViewModel() {
@@ -28,8 +26,12 @@ class CraftingListDetailsViewModel(
     var sections = mutableStateListOf<SectionViewModel>()
     private var sectionMap = LinkedHashMap<String, SectionViewModel>()
 
-    override fun init(viewModelScope: CoroutineScope) {
+    private lateinit var craftingListId : String
+
+    fun init(viewModelScope: CoroutineScope, craftingListId : String) {
         super.init(viewModelScope)
+
+        this.craftingListId = craftingListId
 
         viewModelScope.launch {
             try {
@@ -105,11 +107,12 @@ class CraftingListDetailsViewModel(
                     ),
                     alternativeRecipe = tempItem.recipes.size > 1
                 )
-                temp.itemCost = buildItemRecipe(
-                    recipe.ingredients,
-                    ceil(itemRecipe.amount*count/recipe.craftAmount.toDouble()).toInt(),
-                    temp
-                )
+                //TODO remove if not needed
+//                temp.itemCost = buildItemRecipe(
+//                    recipe.ingredients,
+//                    ceil(itemRecipe.amount*count/recipe.craftAmount.toDouble()).toInt(),
+//                    temp
+//                )
                 recipelist.add(temp)
             }
         }

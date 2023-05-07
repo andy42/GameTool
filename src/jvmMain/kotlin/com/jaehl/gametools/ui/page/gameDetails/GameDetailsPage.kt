@@ -1,4 +1,4 @@
-package com.jaehl.gametools.ui.page.home
+package com.jaehl.gametools.ui.page.gameDetails
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -8,17 +8,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jaehl.gametools.data.model.Game
-import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.ui.component.AppBar
-import com.jaehl.gametools.ui.page.itemsListPage.ItemList
-import com.jaehl.gametools.ui.page.itemsListPage.ItemListViewModel
+import com.jaehl.gametools.ui.navigation.NavBackListener
+import com.jaehl.gametools.ui.navigation.NavCraftingListListener
+import com.jaehl.gametools.ui.navigation.NavItemListener
 
 @Composable
 fun HomePage(
     game : Game,
-    onGoBackClicked: () -> Unit,
-    onItemListClick: () -> Unit,
-    onCraftingListClick: () -> Unit
+    navBackListener : NavBackListener,
+    navItemListener : NavItemListener,
+    navCraftingListListener : NavCraftingListListener,
 ) {
 
     Column(modifier = Modifier) {
@@ -26,18 +26,18 @@ fun HomePage(
             title = game.name,
             returnButton = true,
             onBackClick = {
-                onGoBackClicked()
+                navBackListener.navigateBack()
             }
         )
 
         Column(modifier = Modifier.padding(20.dp)) {
             Button(onClick = {
-                onItemListClick()
+                navItemListener.openItemList()
             }) {
                 Text("Item List")
             }
             Button(onClick = {
-                onCraftingListClick()
+                navCraftingListListener.openCraftingLists()
             }) {
                 Text("Crafting List")
             }

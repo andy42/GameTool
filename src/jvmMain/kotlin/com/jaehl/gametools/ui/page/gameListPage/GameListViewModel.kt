@@ -2,25 +2,26 @@ package com.jaehl.gametools.ui.page.gameListPage
 
 import androidx.compose.runtime.mutableStateListOf
 import com.jaehl.gametools.data.model.Game
-import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.repo.CraftingListRepo
 import com.jaehl.gametools.data.repo.GamesRepo
 import com.jaehl.gametools.data.repo.ItemRepo
 import com.jaehl.gametools.extensions.postSwap
+import com.jaehl.gametools.ui.navigation.NavGameListener
 import com.jaehl.gametools.util.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class GameListViewModel(
+class GameListViewModel @Inject constructor(
     private val gamesRepo : GamesRepo,
     private val itemRepo : ItemRepo,
-    private val craftingListRepo : CraftingListRepo,
-    private val onSelectedGameClick : (game : Game) -> Unit
+    private val craftingListRepo : CraftingListRepo
 ) : ViewModel() {
 
+    var navGameListener: NavGameListener? = null
     var games = mutableStateListOf<Game>()
         private set
 
@@ -38,7 +39,7 @@ class GameListViewModel(
         GlobalScope.async {
             itemRepo.setGame(game)
             craftingListRepo.setGame(game)
-            onSelectedGameClick(game)
+            navGameListener?.openGameDetails(game)
         }
     }
 

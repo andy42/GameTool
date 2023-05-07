@@ -27,14 +27,17 @@ import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.FlowRow
 import com.jaehl.gametools.ui.component.IngredientList
 import com.jaehl.gametools.ui.component.ItemIcon
+import com.jaehl.gametools.ui.navigation.NavBackListener
+import com.jaehl.gametools.ui.navigation.NavCraftingListListener
+import com.jaehl.gametools.ui.navigation.NavItemListener
 
 @Composable
 fun CraftingListDetailsPage(
     craftingListId : String,
     viewModel : CraftingListDetailsViewModel,
-    onGoBackClicked: () -> Unit,
-    onCraftingListEditClick : (String?) -> Unit,
-    onItemClick : (Item) -> Unit
+    navBackListener : NavBackListener,
+    navCraftingListListener : NavCraftingListListener,
+    navItemListener : NavItemListener
 ) {
 
     Column(
@@ -44,16 +47,16 @@ fun CraftingListDetailsPage(
         AppBar(
             title = viewModel.title.value,
             onBackClick = {
-                onGoBackClicked()
+                navBackListener.navigateBack()
             },
             onEditClicked = {
-                onCraftingListEditClick(craftingListId)
+                navCraftingListListener.openCraftingListEdit(craftingListId)
             }
         )
 
         Column(modifier = Modifier.padding(20.dp)) {
             viewModel.sections.forEach { section ->
-                Section(viewModel, section, onItemClick)
+                Section(viewModel, section, navItemListener::openItemDetails)
             }
         }
     }

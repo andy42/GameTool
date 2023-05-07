@@ -16,13 +16,14 @@ import androidx.compose.ui.unit.dp
 import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.AppBar
+import com.jaehl.gametools.ui.navigation.NavBackListener
+import com.jaehl.gametools.ui.navigation.NavGameListener
 
 @Composable
 fun GameListPage(
     viewModel: GameListViewModel,
-    onGoBackClicked: () -> Unit,
-    //onSelectGameClick: (Game) -> Unit,
-    onEditGameClick: (Game?) -> Unit
+    navBackListener : NavBackListener,
+    navGameListener: NavGameListener
 ) {
 
     Box {
@@ -31,17 +32,17 @@ fun GameListPage(
                 title = "Games",
                 returnButton = false,
                 onBackClick = {
-                    onGoBackClicked()
+                    navBackListener.navigateBack()
                 }
             )
 
             Column(modifier = Modifier.padding(20.dp)) {
                 Button(onClick = {
-                    onEditGameClick(null)
+                    navGameListener.openGameEdit(null)
                 }) {
                     Text("Create New")
                 }
-                GameList(viewModel, viewModel.games, onEditGameClick)
+                GameList(viewModel, viewModel.games, navGameListener::openGameEdit)
             }
         }
     }

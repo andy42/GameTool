@@ -11,7 +11,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,19 +18,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.AppBar
-import com.jaehl.gametools.ui.component.ItemIcon
-import com.jaehl.gametools.ui.page.itemsListPage.ItemList
-import com.jaehl.gametools.ui.page.itemsListPage.ItemRow
+import com.jaehl.gametools.ui.navigation.NavBackListener
+import com.jaehl.gametools.ui.navigation.NavCraftingListListener
 
 @Composable
 fun CraftingListsPage(
     viewModel : CraftingListsViewModel,
-    onGoBackClicked: () -> Unit,
-    onCraftingListDetailsClick: (String) -> Unit,
-    onCraftingListEditClick: (String?) -> Unit
+    navBackListener : NavBackListener,
+    navCraftingListListener : NavCraftingListListener
 ) {
 
     var showDeleteButtons = remember { mutableStateOf(false) }
@@ -41,7 +37,7 @@ fun CraftingListsPage(
             title = "Crafting Lists",
             returnButton = true,
             onBackClick = {
-                onGoBackClicked()
+                navBackListener.navigateBack()
             }
         )
 
@@ -51,7 +47,7 @@ fun CraftingListsPage(
             ) {
                 Button(
                     onClick = {
-                        onCraftingListEditClick(null)
+                        navCraftingListListener.openCraftingListEdit(null)
                     },
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -69,7 +65,7 @@ fun CraftingListsPage(
             }
             LazyColumn {
                 itemsIndexed(viewModel.list) { index, item ->
-                    CraftingListRow(index, viewModel, item, onCraftingListDetailsClick, showDeleteButtons.value)
+                    CraftingListRow(index, viewModel, item, navCraftingListListener::openCraftingListDetails, showDeleteButtons.value)
                 }
             }
         }

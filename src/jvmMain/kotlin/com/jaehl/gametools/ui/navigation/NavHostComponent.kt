@@ -10,18 +10,50 @@ import com.arkivanov.decompose.router.router
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
+import com.jaehl.gametools.di.AppComponent
+import com.jaehl.gametools.di.DaggerAppComponent
 import com.jaehl.gametools.ui.page.craftingListDetailsPage.CraftingListDetailsPageComponent
 import com.jaehl.gametools.ui.page.craftingListEditPage.CraftingListEditPageComponent
 import com.jaehl.gametools.ui.page.craftingListsPage.CraftingListsPageComponent
 import com.jaehl.gametools.ui.page.gameListPage.GameListPageComponent
-import com.jaehl.gametools.ui.page.home.HomePageComponent
+import com.jaehl.gametools.ui.page.gameDetails.GameDetailsPageComponent
 import com.jaehl.gametools.ui.page.itemDetailsPage.ItemDetailsPageComponent
 import com.jaehl.gametools.ui.page.itemEditPage.ItemEditPageComponent
 import com.jaehl.gametools.ui.page.itemsListPage.ItemListPageComponent
 
+interface NavBackListener {
+    fun navigateBack()
+}
+
+interface NavItemListener {
+    fun openItemList()
+    fun openItemEdit(item : Item?)
+    fun openItemDetails(item : Item)
+}
+
+interface NavCraftingListListener {
+    fun openCraftingLists()
+    fun openCraftingListEdit(craftingListId : String?)
+    fun openCraftingListDetails(craftingListId : String)
+}
+
+interface NavGameListener {
+    fun openGameDetails(game : Game)
+    fun openGameEdit(game : Game?)
+}
+
 class NavHostComponent(
     componentContext: ComponentContext,
-) : Component, ComponentContext by componentContext {
+) : Component,
+    ComponentContext by componentContext,
+    NavBackListener,
+    NavItemListener,
+    NavCraftingListListener,
+    NavGameListener
+
+{
+    private val appComponent: AppComponent = DaggerAppComponent
+        .create()
 
     private var selectedGame : Game = Game()
 
@@ -36,97 +68,94 @@ class NavHostComponent(
     ): Component {
         return when (screenConfig) {
             is ScreenConfig.GameList -> GameListPageComponent(
-                componentContext,
-                ::onGoBackClicked,
-                ::onGameClick,
-                ::onGameEditClick
+                appComponent = appComponent,
+                componentContext = componentContext,
+                navBackListener = this,
+                navGameListener = this
             )
-            is ScreenConfig.Home -> HomePageComponent(
-                componentContext,
+            is ScreenConfig.GameDetails -> GameDetailsPageComponent(
+                appComponent = appComponent,
+                componentContext = componentContext,
                 selectedGame,
-                ::onGoBackClicked,
-                ::onItemListClick,
-                ::onCraftingListsClick
+                navBackListener = this,
+                navItemListener = this,
+                navCraftingListListener = this
             )
             is ScreenConfig.ItemList -> ItemListPageComponent(
-                componentContext,
-                selectedGame,
-                ::onGoBackClicked,
-                ::onItemClick,
-                ::onItemEditClick
+                appComponent = appComponent,
+                componentContext = componentContext,
+                navBackListener = this,
+                navItemListener = this
             )
             is ScreenConfig.ItemEdit -> ItemEditPageComponent(
-                componentContext,
-                selectedGame,
-                screenConfig.item,
-                ::onGoBackClicked
+                appComponent = appComponent,
+                componentContext = componentContext,
+                item = screenConfig.item,
+                navBackListener = this,
             )
             is ScreenConfig.ItemDetails -> ItemDetailsPageComponent(
-                componentContext,
-                selectedGame,
-                screenConfig.item,
-                ::onGoBackClicked,
-                ::onItemEditClick
+                appComponent = appComponent,
+                componentContext = componentContext,
+                item = screenConfig.item,
+                navBackListener = this,
+                navItemListener = this
             )
             is ScreenConfig.CraftingLists -> CraftingListsPageComponent(
-                componentContext,
-                selectedGame,
-                ::onGoBackClicked,
-                ::onCraftingListDetailsClick,
-                ::onCraftingListEditClick
+                appComponent = appComponent,
+                componentContext = componentContext,
+                navBackListener = this,
+                navCraftingListListener = this
             )
             is ScreenConfig.CraftingListDetails -> CraftingListDetailsPageComponent(
-                componentContext,
-                selectedGame,
-                screenConfig.craftingListId,
-                ::onGoBackClicked,
-                ::onCraftingListEditClick,
-                ::onItemClick
+                appComponent = appComponent,
+                componentContext = componentContext,
+                craftingListId = screenConfig.craftingListId,
+                navBackListener = this,
+                navCraftingListListener = this,
+                navItemListener = this
             )
             is ScreenConfig.CraftingListEdit -> CraftingListEditPageComponent(
-                componentContext,
-                selectedGame,
-                screenConfig.craftingListId,
-                ::onGoBackClicked
+                appComponent = appComponent,
+                componentContext = componentContext,
+                craftingListId = screenConfig.craftingListId,
+                navBackListener = this,
             )
         }
     }
 
-    private fun onGameClick(game : Game){
+    override fun navigateBack() {
+        router.pop()
+    }
+
+    override fun openGameEdit(game: Game?) {
+
+    }
+
+    override fun openGameDetails(game: Game) {
         selectedGame = game
-        router.push(ScreenConfig.Home)
+        router.push(ScreenConfig.GameDetails)
     }
 
-    private fun onGameEditClick(game : Game?){
-
-    }
-
-    private fun onItemListClick(){
+    override fun openItemList(){
         router.push(ScreenConfig.ItemList)
     }
-
-    private fun onCraftingListsClick(){
-        router.push(ScreenConfig.CraftingLists)
-    }
-
-    private fun onCraftingListDetailsClick(craftingListId : String){
-        router.push(ScreenConfig.CraftingListDetails(craftingListId))
-    }
-
-    private fun onCraftingListEditClick(craftingListId : String?){
-        router.push(ScreenConfig.CraftingListEdit(craftingListId))
-    }
-
-    private fun onItemClick(item : Item) {
+    override fun openItemDetails(item : Item) {
         router.push(ScreenConfig.ItemDetails(item))
     }
-
-    private fun onItemEditClick (item : Item?) {
+    override fun openItemEdit(item : Item?) {
         router.push(ScreenConfig.ItemEdit(item))
     }
 
-    private fun onGoBackClicked() {
-        router.pop()
+    override fun openCraftingLists() {
+        router.push(ScreenConfig.CraftingLists)
+    }
+
+    override fun openCraftingListEdit(craftingListId: String?) {
+        router.push(ScreenConfig.CraftingListEdit(craftingListId))
+    }
+
+    override fun openCraftingListDetails(craftingListId: String) {
+        router.push(ScreenConfig.CraftingListDetails(craftingListId))
     }
 
     @OptIn(ExperimentalDecomposeApi::class)
@@ -139,7 +168,7 @@ class NavHostComponent(
 
     private sealed class ScreenConfig : Parcelable {
         object GameList : ScreenConfig()
-        object Home : ScreenConfig()
+        object GameDetails : ScreenConfig()
         object ItemList : ScreenConfig()
         data class ItemEdit(val item : Item?) : ScreenConfig()
         data class ItemDetails(val item : Item) : ScreenConfig()

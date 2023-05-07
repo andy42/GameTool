@@ -1,35 +1,27 @@
 package com.jaehl.gametools.ui.page.itemsListPage
 
-import androidx.compose.foundation.Image
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.ResourceLoader
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.jaehl.gametools.data.model.Game
-import com.jaehl.gametools.ui.component.Picker
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.ItemCategory
-import com.jaehl.gametools.ui.AppColor
 import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.ItemCategoryPickDialog
 import com.jaehl.gametools.ui.component.ItemIcon
-import java.io.File
+import com.jaehl.gametools.ui.navigation.NavBackListener
+import com.jaehl.gametools.ui.navigation.NavItemListener
 
 @Composable
 fun ItemRow(
@@ -75,9 +67,8 @@ fun ItemList(
 @Composable
 fun ItemListPage(
     viewModel : ItemListViewModel,
-    onGoBackClicked: () -> Unit,
-    onItemClick: (Item) -> Unit,
-    onItemEditClick: (Item?) -> Unit
+    navBackListener : NavBackListener,
+    navItemListener : NavItemListener
 ) {
     var isItemCategoryPickOpen by remember { mutableStateOf(false) }
 
@@ -87,13 +78,13 @@ fun ItemListPage(
                 title = "Items",
                 returnButton = true,
                 onBackClick = {
-                    onGoBackClicked()
+                    navBackListener.navigateBack()
                 }
             )
 
             Column(modifier = Modifier.padding(20.dp)) {
                 Button(onClick = {
-                    onItemEditClick(null)
+                    navItemListener.openItemEdit(null)
                 }) {
                     Text("Create New")
                 }
@@ -127,7 +118,7 @@ fun ItemListPage(
                     }
                 }
 
-                ItemList(viewModel.items, onItemClick, onItemEditClick)
+                ItemList(viewModel.items, navItemListener::openItemDetails, navItemListener::openItemEdit)
             }
         }
         if(isItemCategoryPickOpen){

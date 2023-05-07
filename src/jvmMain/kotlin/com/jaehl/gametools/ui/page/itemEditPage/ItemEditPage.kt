@@ -19,12 +19,13 @@ import com.jaehl.gametools.ui.R
 import com.jaehl.gametools.ui.component.ItemCategoryPickDialog
 import com.jaehl.gametools.ui.component.ItemIcon
 import com.jaehl.gametools.ui.component.ItemPickDialog
+import com.jaehl.gametools.ui.navigation.NavBackListener
 
 @Composable
 fun ItemEditPage(
     item : Item?,
     viewModel : ItemEditViewModel,
-    onGoBackClicked: () -> Unit
+    navBackListener : NavBackListener
 ) {
     var isItemCategoryPickOpen by remember { mutableStateOf(false) }
 
@@ -39,7 +40,7 @@ fun ItemEditPage(
 
     //var itemRecipeList = viewModel.itemRecipeList.collectAsState()
     if(viewModel.closePage.value){
-        onGoBackClicked()
+        navBackListener.navigateBack()
     }
     Box(
         modifier = Modifier
@@ -50,7 +51,7 @@ fun ItemEditPage(
             com.jaehl.gametools.ui.component.AppBar(
                 title = viewModel.pageTitle.value,
                 returnButton = true,
-                onBackClick = onGoBackClicked
+                onBackClick = navBackListener::navigateBack
             )
             Column(
                 modifier = Modifier.padding(20.dp),

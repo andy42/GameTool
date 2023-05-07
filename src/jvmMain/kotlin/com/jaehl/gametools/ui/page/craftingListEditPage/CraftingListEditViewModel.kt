@@ -3,27 +3,26 @@ package com.jaehl.gametools.ui.page.craftingListEditPage
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.jaehl.gametools.data.model.CraftingList
-import com.jaehl.gametools.data.model.Game
 import com.jaehl.gametools.data.model.Item
 import com.jaehl.gametools.data.model.ItemIngredient
 import com.jaehl.gametools.data.repo.CraftingListRepo
 import com.jaehl.gametools.data.repo.ItemRepo
 import com.jaehl.gametools.extensions.postSwap
-import com.jaehl.gametools.ui.page.itemEditPage.ItemEditViewModel
+import com.jaehl.gametools.ui.navigation.NavBackListener
 import com.jaehl.gametools.util.ViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CraftingListEditViewModel(
-    private val game : Game,
-    private val craftingListId : String?,
+class CraftingListEditViewModel @Inject constructor(
     private val itemRepo : ItemRepo,
-    private val craftingListRepo : CraftingListRepo,
-    private val onGoBackClicked : () -> Unit
+    private val craftingListRepo : CraftingListRepo
 ) : ViewModel() {
+
+    private var craftingListId : String? = null
+    private var navBackListener : NavBackListener? = null
 
     var windowTitle = mutableStateOf("")
     var craftingListTitle = mutableStateOf("")
@@ -35,8 +34,11 @@ class CraftingListEditViewModel(
 
     var sections = mutableStateListOf<SectionViewModel>()
 
-    override fun init(viewModelScope: CoroutineScope) {
+    fun init(viewModelScope: CoroutineScope, craftingListId : String?, navBackListener : NavBackListener) {
         super.init(viewModelScope)
+
+        this.craftingListId = craftingListId
+        this.navBackListener = navBackListener
 
         viewModelScope.launch {
             val tempCraftingList = craftingListRepo.getCraftingList(craftingListId)
@@ -204,7 +206,7 @@ class CraftingListEditViewModel(
             } else {
                 craftingListRepo.updateItem(temp)
             }
-            onGoBackClicked()
+            navBackListener?.navigateBack()
         }
     }
 

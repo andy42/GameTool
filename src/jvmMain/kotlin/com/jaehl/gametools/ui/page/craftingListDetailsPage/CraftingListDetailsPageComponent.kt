@@ -4,27 +4,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import com.arkivanov.decompose.ComponentContext
-import com.jaehl.gametools.data.model.Game
-import com.jaehl.gametools.data.model.Item
-import com.jaehl.gametools.data.repo.RepoSingleton
+import com.jaehl.gametools.di.AppComponent
 import com.jaehl.gametools.ui.navigation.Component
+import com.jaehl.gametools.ui.navigation.NavBackListener
+import com.jaehl.gametools.ui.navigation.NavCraftingListListener
+import com.jaehl.gametools.ui.navigation.NavItemListener
+import javax.inject.Inject
 
 class CraftingListDetailsPageComponent (
+    appComponent : AppComponent,
     private val componentContext: ComponentContext,
-    private val game : Game,
     private val craftingListId : String,
-    private val onGoBackClicked: () -> Unit,
-    private val onCraftingListEditClick : (String?) -> Unit,
-    private val onItemClick : (Item) -> Unit
-) : Component, ComponentContext by componentContext {
+    private val navBackListener : NavBackListener,
+    private val navCraftingListListener : NavCraftingListListener,
+    private val navItemListener : NavItemListener
 
-    private val viewModel = CraftingListDetailsViewModel(
-        game,
-        craftingListId,
-        RepoSingleton.itemRepo,
-        RepoSingleton.craftingListRepo
-    )
+    ) : Component, ComponentContext by componentContext {
+
+    @Inject
+    lateinit var viewModel : CraftingListDetailsViewModel
     init {
+        appComponent.inject(this)
     }
 
     @Composable
@@ -32,15 +32,15 @@ class CraftingListDetailsPageComponent (
 
         val scope = rememberCoroutineScope()
         LaunchedEffect(viewModel) {
-            viewModel.init(scope)
+            viewModel.init(scope, craftingListId)
         }
 
         CraftingListDetailsPage(
             craftingListId = craftingListId,
             viewModel = viewModel,
-            onGoBackClicked = onGoBackClicked,
-            onCraftingListEditClick = onCraftingListEditClick,
-            onItemClick = onItemClick
+            navBackListener = navBackListener,
+            navCraftingListListener = navCraftingListListener,
+            navItemListener = navItemListener
         )
     }
 }
